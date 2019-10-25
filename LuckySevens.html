@@ -1,0 +1,118 @@
+<html>
+  <head>
+    <title>Alex's Lucky Sevens</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      .hide {
+        visibility: hidden;
+      }
+      .bold {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+      <h1>Alex's Lucky Sevens</h1>
+      <div>
+        <form>
+          <label for="starting-bet">Starting Bet</label>
+          <input type="number" step=".01" id="starting-bet">
+          <button onclick="playGame()">Play</button>
+        </form>
+        <table id="game-results" class="hide">
+          <tr>
+            <td>Starting Bet</td>
+            <td>&nbsp;</td>
+            <td>$<span id="bet" class="bold"></span></td>
+          </tr>
+          <tr>
+            <td>Total Rolls Before Going Broke</td>
+            <td>&nbsp;</td>
+            <td><span id="rolls" class="bold"></span></td>
+          </tr>
+          <tr>
+            <td>Highest Amount Won</td>
+            <td>&nbsp;</td>
+            <td>$<span id="highest-balance" class="bold"></span></td>
+          </tr>
+          <tr>
+            <td>Roll Count at Highest Amount Won</td>
+            <td>&nbsp;</td>
+            <td><span id="highest-balance-roll" class="bold"></span></td>
+          </tr>
+        </table>
+      </div>
+
+      <script>
+        function playGame() {
+          event.preventDefault()
+          const startingBet = document.getElementById('starting-bet').value
+          let currentBalance = startingBet
+          let highestBalance = startingBet
+          let highestBalanceRoll = 0
+          let rollCount = 0
+
+          console.log('START')
+
+          while(currentBalance > 0) {
+            currentBalance = determineRollResults(currentBalance) // rolls the dice and returns results
+
+            // keep track of dice rolls
+            rollCount++
+
+            // keep track of highest balance
+            if (currentBalance > highestBalance) {
+              highestBalance = currentBalance
+              highestBalanceRoll = rollCount
+              console.log(`New record!  Player has reached ${highestBalance} at roll ${highestBalanceRoll}`)
+            }
+          }
+          console.log('------------------')
+          console.log(`Player put in $${startingBet}`)
+          console.log(`It took player ${rollCount} rolls to lose all money.`)
+          console.log(`Player had at most $${highestBalance} at roll ${highestBalanceRoll} during the game.`)
+          console.log('END')
+          console.log('')
+          console.log('')
+
+          document.getElementById('bet').textContent = startingBet
+          document.getElementById('rolls').textContent = rollCount
+          document.getElementById('highest-balance').textContent = highestBalance
+          document.getElementById('highest-balance-roll').textContent = highestBalanceRoll
+
+          // show results table
+          document.getElementById('game-results').classList.remove('hide')
+        }
+
+        // gets a nunmber between 1 and 6
+        function rollDice() {
+          return Math.floor(Math.random() * 6) + 1
+        }
+
+        function determineRollResults(currentBalance) {
+          // roll the dice
+          const dice1 = rollDice()
+          const dice2 = rollDice()
+          console.log(`Player rolls a ${dice1} and a ${dice2}`)
+
+          // check for lucky sevens
+          if(dice1 + dice2 === 7) {
+            currentBalance += 4
+            console.log(`Lucky Sevens! Player now has $${currentBalance}`)
+          } else {
+            currentBalance--
+            console.log(`Better luck next roll.  Player now has $${currentBalance}`)
+          }
+
+          // check and get rid of floating point precision errors (see above print statements)
+          const roundedCurrentBalance = Math.round((currentBalance + 0.00001) * 100) / 100;
+          console.log(`rounded balance: $${roundedCurrentBalance}`)
+
+          // return the player's new balance
+          return roundedCurrentBalance
+        }
+      </script>
+  </body>
+</html>
